@@ -1,6 +1,6 @@
 # PROAKTIV: PROtein Analytics for Kinase Therapeutic Inhibitor Variants
 
-PROAKTIV is a comprehensive machine learning pipeline designed to predict the efficacy of Tyrosine Kinase Inhibitors (TKIs)- against specific cancer-associated protein mutations (Mainly focused in EGFR, ALK and BRAF). By leveraging state-of-the-art protein language models and deep learning (CNN_RNN) techniques, this project aims to provide a computational decision-support tool to guide personalized cancer therapy and overcome acquired drug resistance.
+PROAKTIV is a comprehensive machine learning pipeline designed to predict the efficacy of Tyrosine Kinase Inhibitors (TKIs)- against specific cancer-associated protein mutations (Mainly focused in EGFR, ALK and BRAF). By leveraging state-of-the-art protein language models (ESM2) and deep learning (CNN_RNN, CNN, fingerprints,transformers) models, this project aims to provide a computational decision-support tool for personalized cancer therapy.
 
 ## Scientific Background
 
