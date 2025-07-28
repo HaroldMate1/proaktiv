@@ -14,26 +14,236 @@ This repository is organized to ensure modularity and reproducibility.
 
 ```
 PROAKTIV/
+│   $null
+│   .gitignore
+│   Dockerfile
+│   environment.yml
+│   LICENSE
+│   README.md
+│   requirements.txt
 │
-├── .github/      # CI/CD workflows (e.g., automated testing)
-├── configs/      # Configuration files for models and data sources
-├── data/         # Raw, processed, and external datasets (managed by DVC)
-├── docs/         # Detailed documentation and project-related images
-├── models/       # Trained model checkpoints (managed by DVC)
-├── notebooks/    # Jupyter notebooks for EDA and prototyping
-├── src/          # All Python source code for the project
-│   ├── data_processing/
-│   ├── modeling/
-│   ├── training/
-│   ├── inference/
-│   └── utils/
-├── tests/        # Unit and integration tests
+├───data
+│       ALK_IC50_all_assays.xlsx
+│       BRAF_IC50_all_assays.xlsx
+│       egfr_alk_braf_merged.xlsx
+│       EGFR_IC50_all_assays.xlsx
 │
-├── .gitignore    # Files to be ignored by Git
-├── Dockerfile    # Docker container definition
-├── environment.yml # Conda environment specification
-├── README.md     # This file
-└── requirements.txt # Pip package requirements
+├───notebooks
+│       plots.ipynb
+│
+├───src
+│   ├───data_processing
+│   │       dataset.py
+│   │
+│   ├───inference
+│   │       cnn_rnn_prediction.py
+│   │       plm_prediction.py
+│   │
+│   ├───modeling
+│   │       cnn_cnn.py
+│   │       cnn_cnn_rnn.py
+│   │       cnn_transformer.py
+│   │       daylight_cnn.py
+│   │       daylight_cnn_rnn.py
+│   │       daylight_transformer.py
+│   │       morgan_cnn.py
+│   │       morgan_cnn_rnn.py
+│   │       mpnn_transformer.py
+│   │       pubchem_cnn_rnn.py
+│   │
+│   └───training
+│           fingerprints_cnn_rnn.py
+│           fingerprints_plm.py
+│
+└───tests
+    ├───cnn_cnn
+    │
+    ├───cnn_cnn_rnn  
+    │
+    ├───cnn_transformer
+    │
+    ├───daylight_cnn
+    │
+    ├───daylight_cnn_rnn
+    │
+    ├───daylight_transformer
+    │
+    ├───fingerprint_transformer
+    │
+    ├───morgan_cnn
+    │
+    ├───morgan_cnn_rnn
+    │   │   loss_curve.png
+    │   │
+    │   ├───50_proteins
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───ALK
+    │   │   ├───final_30epochs
+    │   │   │   │   figure_3.png
+    │   │   │   │   loss_curve.png
+    │   │   │   │   test_inference_results.png
+    │   │   │   │   validation_inference_results.png
+    │   │   │   │
+    │   │   │   └───TEST
+    │   │   │           loss_curve.png
+    │   │   │
+    │   │   └───morgan_cnn_rnn
+    │   │           figure_3.png
+    │   │           loss_curve.png
+    │   │           test_inference_results.png
+    │   │           validation_inference_results.png
+    │   │
+    │   ├───BRAF
+    │   │   │   figure_3.png
+    │   │   │   loss_curve.png
+    │   │   │   test_inference_results.png
+    │   │   │   validation_inference_results.png
+    │   │   │
+    │   │   └───final_30epochs
+    │   │           figure_3.png
+    │   │           loss_curve.png
+    │   │           test_inference_results.png
+    │   │           validation_inference_results.png
+    │   │
+    │   ├───cold_protein
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EGFR
+    │   │   ├───morgan_cnn_rnn_all_result
+    │   │   │       figure_3_all_pIC50.png
+    │   │   │       loss_curve_all_pIC50.png
+    │   │   │       test_inference_results_all_pIC50.png
+    │   │   │       validation_inference_results_all_pIC50.png
+    │   │   │
+    │   │   ├───morgan_cnn_rnn_cell_result
+    │   │   │       figure_3_cell_pIC50.png
+    │   │   │       loss_curve_cell_pIC50.png
+    │   │   │       test_inference_results_cell_pIC50.png
+    │   │   │       validation_inference_results_cell_pIC50.png
+    │   │   │       
+    │   │   └───morgan_cnn_rnn_protein_result
+    │   │           figure_3_protein_pIC50.png
+    │   │           loss_curve_protein_pIC50.png
+    │   │           test_inference_results_protein_pIC50.png
+    │   │           validation_inference_results_protein_pIC50.png      
+    │   │
+    │   ├───EGFR_ALK_BRAF
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EPOCH 100
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EPOCH 200
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EPOCH 400
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       loss_curve_plot.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EPOCH 500
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───EPOCH300
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───FINAL EGFR
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───FINAL EGFR_BRAF_ALK
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───Kinome FINAL
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───optimized_epoch
+    │   │   └───EGFR
+    │   │           figure_3.png
+    │   │           loss_curve.png
+    │   │           test_inference_results.png
+    │   │           validation_inference_results.png
+    │   │
+    │   ├───optimized_epoch_214
+    │   │       figure_3.png
+    │   │       loss_curve.png
+    │   │       test_inference_results.png
+    │   │       validation_inference_results.png
+    │   │
+    │   ├───results
+    │   ├───sequence aware
+    │   │   │   figure_3.png
+    │   │   │   loss_curve.png
+    │   │   │   test_inference_results.png
+    │   │   │   validation_inference_results.png
+    │   │   │
+    │   │   └───1000epochs
+    │   │           figure_3.png
+    │   │           loss_curve.png
+    │   │           test_inference_results.png
+    │   │           training_vs_validation_loss.png
+    │   │           validation_inference_results.png
+    │   │
+    │   └───try
+    │           figure_3.png
+    │           loss_curve.png
+    │           test_inference_results.png
+    │           validation_inference_results.png
+    │
+    ├───mpnn_transformer
+    │   └───result
+    │           loss_curve.png
+    │
+    ├───optimized_morgan_cnn_rnn
+    │       loss_curve.png
+    │
+    ├───pubchem_cnn_rnn
+    │       figure_3.png
+    │       loss_curve.png
+    │       test_inference_results.png
+    │       validation_inference_results.png
+    │
+    └───selfies_transformer
+        │   inference_results_10_epochs.png
+        │   inference_results_20_epochs.png
+        │   inference_results_5_epochs.png
+        │   training_vs_validation_loss_10_epochs.png
+        │   training_vs_validation_loss_20_epochs.png
+        │   training_vs_validation_loss_5_epochs.png
+        │
+        └───reports
 
 ```
 
