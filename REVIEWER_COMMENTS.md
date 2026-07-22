@@ -2,6 +2,8 @@
 
 Peer-review comments received for the submitted PROAKTIV manuscript. The comments below are preserved verbatim for revision tracking.
 
+The complete proposed response and implementation strategy is available in [`REVISION_PLAN.md`](REVISION_PLAN.md).
+
 ## Reviewer 1
 
 > The authors describe a model (PROAKTIV) for modelling kinase inhibitor resistance/sensitivity patterns, which is generally of interest
