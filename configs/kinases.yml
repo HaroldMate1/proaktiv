@@ -1,0 +1,36 @@
+# Canonical target definitions for PROAKTIV.
+#
+# `kinase_domain` values are the UniProt "Protein kinase" domain annotations for
+# the canonical isoform. `flank` widens that window so every mutation observed in
+# the curated data is encoded with local structural context; the resulting window
+# must stay under the ESM2 token limit (see src/proaktiv/curation/sequences.py).
+#
+# Rationale: the submitted pipeline fed full-length sequences to ESM2 with
+# max_length=1024 and truncation=True. ALK is 1620 aa and every curated ALK
+# mutation sits past residue 1024, so all ALK variants encoded identically to
+# wild type. Windowing on the kinase domain removes that failure mode and keeps
+# the mutated residue inside the encoder input for all three targets.
+
+targets:
+  EGFR:
+    uniprot: P00533
+    target_pref_name: Epidermal growth factor receptor erbB1
+    length: 1210
+    kinase_domain: [712, 979]
+    flank: 64
+  ALK:
+    uniprot: Q9UM73
+    target_pref_name: ALK tyrosine kinase receptor
+    length: 1620
+    kinase_domain: [1116, 1392]
+    flank: 64
+  BRAF:
+    uniprot: P15056
+    target_pref_name: Serine/threonine-protein kinase B-raf
+    length: 766
+    kinase_domain: [457, 717]
+    flank: 64
+
+# Hard cap on the windowed sequence length passed to the protein encoder.
+# ESM2 adds <cls> and <eos>, so the residue budget is max_tokens - 2.
+max_tokens: 1024

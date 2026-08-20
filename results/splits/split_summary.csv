@@ -1,0 +1,5 @@
+scheme,train,valid,test,unassigned,isolates,verdict,problems
+random,12940,1846,3706,0,nothing (reference only),PASS,
+scaffold,12941,1851,3700,0,scaffold,PASS,
+variant,16319,836,1337,0,"variant, sequence",PASS,
+combined,11398,124,263,6707,"scaffold, variant, sequence",PASS,

@@ -1,0 +1,49 @@
+# Eligibility rules for the PROAKTIV primary endpoint.
+#
+# These rules are declared before any model is fit (Phase 2A of REVISION_PLAN.md).
+# Every excluded row is written to the exclusion log with its reason rather than
+# being dropped silently.
+
+endpoint:
+  standard_type: IC50
+  # Only exact measurements enter the primary endpoint. Censored records are
+  # quarantined, not deleted: `>` values are non-binders whose true pIC50 is
+  # unknown, and treating `>10000 nM` as an exact pIC50 of 5.0 (as the submitted
+  # pipeline did) injects a spike of fabricated labels.
+  accepted_relations: ["="]
+  censored_relations: [">", "<", ">=", "<=", ">>", "~"]
+  # pIC50 = -log10(IC50 / 1e9) requires nM. ug.mL-1 needs a molecular weight and
+  # /uM is not an interpretable IC50 unit; both are quarantined.
+  accepted_units: ["nM"]
+  # Plausible pIC50 range; anything outside is a transcription or unit error.
+  pic50_bounds: [2.0, 12.0]
+
+mutation_labels:
+  # Labels that mark an unresolved mutation. The submitted pipeline let these
+  # through as if they were distinct variants despite carrying the wild-type
+  # sequence.
+  quarantine: ["Other Mutation", "Other Mutations", "UNDEFINED MUTATION", "Undefined"]
+  wild_type_aliases: ["Wild Type", "wild type", "WT"]
+
+assay_classes:
+  # bao_label values grouped into comparable classes. Biochemical and cell-based
+  # IC50 for the same compound-variant pair routinely differ by more than a log
+  # unit, so they are stratified rather than pooled.
+  biochemical:
+    - single protein format
+    - protein format
+    - cell-free format
+  cell_based:
+    - cell-based format
+    - cell membrane format
+  unspecified:
+    - assay format
+
+replicates:
+  # A biological replicate group. ChEMBL's `potential_duplicate` flag is all-zero
+  # in this export, so it cannot be the duplicate policy on its own.
+  group_keys: [molecule_chembl_id, target_pref_name, assay_variant_mutation, assay_class]
+  aggregate: median
+  # Groups whose spread exceeds this are flagged; the observed median within-group
+  # SD is ~0.57 pIC50, so this marks genuinely irreconcilable measurements.
+  dispersion_flag_sd: 1.0

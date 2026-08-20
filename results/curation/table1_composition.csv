@@ -1,0 +1,4 @@
+kinase,raw_measurements,retained_measurements,replicate_groups,unique_compounds,unique_scaffolds,variant_states,mutant_groups,wild_type_groups,compound_mutations,pic50_median,pic50_iqr,groups_with_replicates,high_dispersion_groups
+ALK tyrosine kinase receptor,3245,2966,2691,1865,842,10,709,1982,0,7.55,1.81,189,14
+Epidermal growth factor receptor erbB1,15544,12344,10858,7866,2802,18,3018,7840,9,6.96,2.0,862,184
+Serine/threonine-protein kinase B-raf,6573,5423,4943,4042,1495,2,3267,1676,0,7.36,1.8,370,48

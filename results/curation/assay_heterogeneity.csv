@@ -1,0 +1,10 @@
+target_pref_name,assay_class,replicate_groups,measurements,pic50_median
+ALK tyrosine kinase receptor,biochemical,1674,1847,7.72
+ALK tyrosine kinase receptor,cell_based,701,783,7.19
+ALK tyrosine kinase receptor,unspecified,316,336,7.52
+Epidermal growth factor receptor erbB1,biochemical,5886,6549,7.08
+Epidermal growth factor receptor erbB1,cell_based,3198,3864,6.52
+Epidermal growth factor receptor erbB1,unspecified,1774,1931,7.13
+Serine/threonine-protein kinase B-raf,biochemical,2765,2976,7.72
+Serine/threonine-protein kinase B-raf,cell_based,1136,1367,6.55
+Serine/threonine-protein kinase B-raf,unspecified,1042,1080,7.38
