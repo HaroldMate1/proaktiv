@@ -92,6 +92,58 @@ test groups out of 18,492, with 6,707 rows unassignable without violating one of
 the two guarantees. That is a real constraint on what the hardest split can
 support, and it should be stated rather than worked around.
 
+### What the leakage is worth in performance
+
+Reference baselines on the frozen manifests (`results/baselines/baseline_metrics.csv`,
+regenerate with `python scripts/run_baselines.py`). RMSE in pIC50 units, lower is
+better:
+
+| Model | random | scaffold | unseen-variant | combined |
+|---|---|---|---|---|
+| Global mean | 1.345 | 1.348 | 1.208 | 1.276 |
+| Kinase mean | 1.327 | 1.328 | 1.281 | 1.308 |
+| Variant mean (no ligand) | 1.296 | 1.300 | 1.208 | 1.276 |
+| Morgan → RF (ligand only) | 0.830 | 0.946 | 1.084 | 1.149 |
+| Morgan + variant → RF | **0.807** | 0.928 | 1.017 | **1.129** |
+
+The same models by Pearson *r*, the metric the manuscript reported:
+
+| Model | random | scaffold | unseen-variant | combined |
+|---|---|---|---|---|
+| Morgan + variant → RF | **0.809** | 0.737 | 0.536 | **0.472** |
+
+Three things follow, and all three are usable in the response letter.
+
+**The random-split result sits on the assay noise floor.** Best random-split
+RMSE is 0.807 against a measured floor of 0.782 (finding 7). A model cannot
+legitimately predict a label more precisely than the label is measured, so
+matching the floor on a split where 100% of test variants and 67% of test
+scaffolds were also in training is the expected signature of memorised
+duplicates, not of accuracy.
+
+**Mutation generalisation is close to absent.** On unseen variants the best
+model reaches RMSE 1.017 against 1.208 for simply predicting the global training
+mean — a 16% improvement. Under the combined split it reaches 1.129 against
+1.276, an 11.5% improvement. This is the number that matters most for a paper
+whose claim is variant-aware prediction, and it is the honest answer to
+Reviewer 1's "random validation is used which is known to overestimate
+performance, also for the model presented here."
+
+**Variant identity contributes little under random splitting, and that is
+informative for Reviewer 2's point 4.** Adding variant identity to a ligand-only
+model improves RMSE by 0.023 under random splitting (0.830 → 0.807, 2.8%) but by
+0.067 under the unseen-variant split (1.084 → 1.017, 6.2%). Under random
+splitting a ligand-only model already captures nearly everything, which is why
+the ESM2 model's advantage was not visible: the split hid the very axis the
+protein encoder exists to serve. This argues for keeping ESM2 in the paper but
+justifying it on hard-split mutation generalisation rather than on headline
+random-split numbers.
+
+Caveat to state plainly: these are RandomForest baselines on Morgan
+fingerprints, not the ESM2 or CNN–RNN models. They bound the problem and set the
+floor; they do not substitute for re-running the deep models on the same
+manifests, which is the Phase 4/5 work.
+
 ## 3. No relation or unit filtering — fabricated labels entered training
 
 **Status: confirmed, not raised by either reviewer.**
@@ -270,5 +322,6 @@ requires.
 python scripts/verify_windows.py    # finding 1
 python scripts/build_dataset.py     # findings 3, 4, 6, 7 and Table 1
 python scripts/make_splits.py       # finding 2
-python -m pytest tests_unit -q      # 33 tests
+python scripts/run_baselines.py     # split-performance table under finding 2
+python -m pytest tests_unit -q      # 48 tests
 ```

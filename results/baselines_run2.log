@@ -13,3 +13,28 @@
   variant   variant_mean       RMSE 1.208 [1.171, 1.248]  r=-0.0
   variant   ligand_rf          RMSE 1.084 [1.040, 1.130]  r=0.513
   variant   ligand_variant_rf  RMSE 1.017 [0.973, 1.056]  r=0.536
+  combined  global_mean        RMSE 1.276 [1.183, 1.364]  r=0.0
+  combined  kinase_mean        RMSE 1.308 [1.220, 1.397]  r=0.07
+  combined  variant_mean       RMSE 1.276 [1.181, 1.371]  r=0.0
+  combined  ligand_rf          RMSE 1.149 [1.053, 1.237]  r=0.459
+  combined  ligand_variant_rf  RMSE 1.129 [1.033, 1.225]  r=0.472
+
+--- RMSE by split scheme (pIC50 units) ---
+scheme             combined  random  scaffold  variant
+model                                                 
+global_mean           1.276   1.345     1.348    1.208
+kinase_mean           1.308   1.327     1.328    1.281
+ligand_rf             1.149   0.830     0.946    1.084
+ligand_variant_rf     1.129   0.807     0.928    1.017
+variant_mean          1.276   1.296     1.300    1.208
+
+--- Pearson r by split scheme (what the manuscript reported) ---
+scheme             combined  random  scaffold  variant
+model                                                 
+global_mean           0.000  -0.000       NaN   -0.000
+kinase_mean           0.070   0.166     0.185    0.068
+ligand_rf             0.459   0.794     0.724    0.513
+ligand_variant_rf     0.472   0.809     0.737    0.536
+variant_mean          0.000   0.269     0.265   -0.000
+
+Assay noise floor (replicate RMSE): 0.782 pIC50
