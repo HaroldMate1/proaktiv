@@ -27,7 +27,7 @@ if torch.cuda.is_available():
     print("Device Name:", torch.cuda.get_device_name(0))
 
 # Load dataset from Excel file
-file_path = "/home4/s6273475/ml/master_project/data/EGFR_IC50_all_assays.xlsx"
+file_path = "data/EGFR_IC50_all_assays.xlsx"
 data = pd.read_excel(file_path, engine="openpyxl")
 
 # Rename columns to the expected names by DeepPurpose
@@ -70,7 +70,7 @@ train, val, test = utils.data_process(
 print("Training sample:", train.head(1))
 
 # Define the folder to store model outputs and figures.
-result_folder = "/home4/s6273475/ml/master_project/models/pubchem_cnn_rnn"
+result_folder = "models/pubchem_cnn_rnn"
 os.makedirs(result_folder, exist_ok=True)
 
 # Generate a configuration dictionary.

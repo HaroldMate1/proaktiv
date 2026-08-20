@@ -32,7 +32,7 @@ if torch.cuda.is_available():
     print("Device Name:", torch.cuda.get_device_name(0))
 
 # Define the file path and load the Excel file using openpyxl as the engine
-file_path = "/home4/s6273475/ml/master_project/data/EGFR_IC50_protein_based.xlsx"
+file_path = "data/EGFR_IC50_protein_based.xlsx"
 data = pd.read_excel(file_path, engine="openpyxl")
 
 # Rename columns to the expected names by DeepPurpose
@@ -128,7 +128,7 @@ else:
     logging.warning("Training history is not available.")
 
 # Save the trained model using the entire model object instead of state_dict
-model_save_path = "/home4/s6273475/ml/master_project/models/cnn_cnn/trained_model.pth"
+model_save_path = "models/cnn_cnn/trained_model.pth"
 torch.save(model, model_save_path)
 print(f"Model saved to {model_save_path}")
 
@@ -187,7 +187,7 @@ if train_losses and val_losses:
     plt.ylabel("Loss")
     plt.legend()
     loss_plot_path = os.path.join(
-        "/home4/s6273475/ml/master_project/models/cnn_cnn/cnn_cnn",
+        "models/cnn_cnn/cnn_cnn",
         "training_vs_validation_loss.png",
     )
     plt.savefig(loss_plot_path, dpi=300, bbox_inches="tight")
@@ -228,7 +228,7 @@ plt.grid(True)
 
 plt.tight_layout()
 val_plot_path = os.path.join(
-    "/home4/s6273475/ml/master_project/models/cnn_cnn",
+    "models/cnn_cnn",
     "validation_inference_results.png",
 )
 plt.savefig(val_plot_path, dpi=300, bbox_inches="tight")
@@ -269,14 +269,14 @@ plt.grid(True)
 
 plt.tight_layout()
 test_plot_path = os.path.join(
-    "/home4/s6273475/ml/master_project/models/cnn_cnn", "test_inference_results.png"
+    "models/cnn_cnn", "test_inference_results.png"
 )
 plt.savefig(test_plot_path, dpi=300, bbox_inches="tight")
 plt.close()
 logging.info(f"Test inference results plot saved as '{test_plot_path}'")
 
 # Save any additional generated figures that may be open
-output_dir = "/home4/s6273475/ml/master_project/models/cnn_cnn"
+output_dir = "models/cnn_cnn"
 for fig_num in plt.get_fignums():
     plt.figure(fig_num)
     save_path = os.path.join(output_dir, f"figure_{fig_num}.png")

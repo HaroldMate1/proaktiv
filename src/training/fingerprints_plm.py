@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import argparse
+import warnings
 import logging
 import pandas as pd
 import numpy as np
@@ -16,7 +17,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import optuna  # For hyperparameter optimization
 from deepchem.feat import CircularFingerprint
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from scipy.stats import pearsonr
 from lifelines.utils import concordance_index
 from tqdm import tqdm
@@ -36,12 +36,35 @@ class ProteinLigandDataset(Dataset):
     def __init__(self, df, esm_model_name, fp_radius=2, fp_bits=2048, max_length=1024):
         self.df = df.reset_index(drop=True)
         self.smiles = self.df["canonical_smiles"].tolist()
-        self.sequences = self.df["variant_mutation_sequence"].values
 
-        # Convert IC50 from nM to M, then to pIC50
-        ic50_m = self.df["standard_value"].astype(float).values * 1e-9
-        ic50_m = np.clip(ic50_m, a_min=1e-12, a_max=None)
-        self.labels = torch.tensor(-np.log10(ic50_m), dtype=torch.float32)
+        # Prefer the kinase-domain-windowed sequence produced by
+        # scripts/build_dataset.py. Full-length sequences combined with
+        # truncation at max_length silently collapsed every ALK variant onto
+        # wild type, because all ALK mutations sit past residue 1024.
+        if "windowed_sequence" in self.df.columns:
+            self.sequences = self.df["windowed_sequence"].values
+        else:
+            self.sequences = self.df["variant_mutation_sequence"].values
+            longest = max(len(s) for s in self.sequences)
+            if longest > max_length - 2:
+                raise ValueError(
+                    f"Sequences up to {longest} aa exceed the {max_length - 2} residue "
+                    f"budget and would be truncated, which can delete the mutated "
+                    f"residue. Build the curated table with scripts/build_dataset.py "
+                    f"so a 'windowed_sequence' column is available."
+                )
+
+        # Labels: prefer the curated pIC50, which has already had censored
+        # records and non-nanomolar units removed. Fall back to converting raw
+        # nM only when that column is absent.
+        if "pic50" in self.df.columns:
+            self.labels = torch.tensor(
+                self.df["pic50"].astype(float).values, dtype=torch.float32
+            )
+        else:
+            ic50_m = self.df["standard_value"].astype(float).values * 1e-9
+            ic50_m = np.clip(ic50_m, a_min=1e-12, a_max=None)
+            self.labels = torch.tensor(-np.log10(ic50_m), dtype=torch.float32)
 
         # Tokenizer and fingerprint generator
         self.tokenizer = AutoTokenizer.from_pretrained(
@@ -144,7 +167,46 @@ class ProteinLigandModel(nn.Module):
 # -------------------------------
 # Training, Evaluation, and Plotting
 # -------------------------------
+def load_frozen_split(curated_path, manifest_path):
+    """Load the curated table partitioned by a frozen split manifest.
+
+    Both reviewers objected to the random row split, so the split is no longer
+    computed here. It is produced once by scripts/make_splits.py, audited for
+    leakage, and consumed verbatim -- which is also what makes runs comparable
+    across models.
+    """
+    df = (
+        pd.read_parquet(curated_path)
+        if str(curated_path).endswith(".parquet")
+        else pd.read_csv(curated_path)
+    )
+    manifest = pd.read_csv(manifest_path)
+    if len(manifest) != len(df):
+        raise ValueError(
+            f"Manifest has {len(manifest)} rows but the curated table has {len(df)}. "
+            f"Regenerate both with scripts/build_dataset.py then scripts/make_splits.py."
+        )
+    split = manifest["split"].to_numpy()
+    return (
+        df.loc[split == "train"].reset_index(drop=True),
+        df.loc[split == "valid"].reset_index(drop=True),
+        df.loc[split == "test"].reset_index(drop=True),
+    )
+
+
 def load_and_split_data(data_path, train_frac, val_frac, test_frac, seed):
+    """Deprecated random split, retained only to reproduce the submitted result.
+
+    Kept so the optimistic reference number in the manuscript can still be
+    regenerated. Do not use it for any reported result: it leaks 100% of test
+    variants and 67% of test scaffolds into training (see AUDIT_FINDINGS.md).
+    """
+    warnings.warn(
+        "Random splitting overestimates performance; use load_frozen_split with "
+        "a manifest from scripts/make_splits.py.",
+        UserWarning,
+        stacklevel=2,
+    )
     df = pd.read_excel(data_path)
     train_val, test_df = train_test_split(df, test_size=test_frac, random_state=seed)
     train_df, val_df = train_test_split(
@@ -169,9 +231,19 @@ def train_and_evaluate(args):
     print("Logging configured. Starting train_and_evaluate()", flush=True)
 
     # ─── Data splits ──────────────────────────────────────────────────────────
-    train_df, val_df, test_df = load_and_split_data(
-        args.data_excel, args.train_frac, args.val_frac, args.test_frac, args.seed
-    )
+    if args.split_manifest:
+        train_df, val_df, test_df = load_frozen_split(args.curated_data, args.split_manifest)
+        scheme = os.path.splitext(os.path.basename(args.split_manifest))[0]
+        logging.info("Using frozen split manifest: %s", args.split_manifest)
+        print(f"✔️  Frozen split '{scheme}' from {args.split_manifest}", flush=True)
+    else:
+        train_df, val_df, test_df = load_and_split_data(
+            args.data_excel, args.train_frac, args.val_frac, args.test_frac, args.seed
+        )
+        logging.warning(
+            "No --split_manifest given; falling back to the deprecated random split. "
+            "This result is not reportable."
+        )
     splits_msg = f"Using splits → train: {len(train_df)}, val: {len(val_df)}, test: {len(test_df)}"
     logging.info(splits_msg)
     print("✔️  " + splits_msg, flush=True)
@@ -315,7 +387,7 @@ def train_and_evaluate(args):
         table_rows.append([epoch - 1, val_rmse, val_r, val_p, val_ci])
 
         # print the full table so far
-        headers = ["# epoch", "MSE", "Pearson Corr.", "p-value", "Concordance Index"]
+        headers = ["# epoch", "RMSE", "Pearson Corr.", "p-value", "Concordance Index"]
         print(tabulate(table_rows, headers=headers, tablefmt="github", floatfmt=".4f"))
         print()  # blank line for spacing
 
@@ -612,7 +684,7 @@ def run_training(args, hyperparams=None):
 
         # record & print table
         table_rows.append([epoch - 1, val_rmse, val_r, val_p, val_ci])
-        headers = ["# epoch", "MSE", "Pearson Corr.", "p-value", "Concordance Index"]
+        headers = ["# epoch", "RMSE", "Pearson Corr.", "p-value", "Concordance Index"]
         print(tabulate(table_rows, headers=headers, tablefmt="github", floatfmt=".4f"))
         print()
 
@@ -655,8 +727,24 @@ def parse_args():
     parser.add_argument(
         "--data_excel",
         type=str,
-        default="/home4/s6273475/ml/master_project/data/egfr_alk_braf_merged.xlsx",
-        help="/home4/s6273475/ml/master_project/data/egfr_alk_braf_merged.xlsx",
+        default="data/egfr_alk_braf_merged.xlsx",
+        help="Raw merged Excel export. Only used by the deprecated random-split "
+        "path; prefer --curated_data with --split_manifest.",
+    )
+    parser.add_argument(
+        "--curated_data",
+        type=str,
+        default="results/curation/curated.parquet",
+        help="Curated table from scripts/build_dataset.py. Carries windowed "
+        "sequences and filtered pIC50 labels.",
+    )
+    parser.add_argument(
+        "--split_manifest",
+        type=str,
+        default=None,
+        help="Frozen split manifest from scripts/make_splits.py, e.g. "
+        "results/splits/scaffold.csv. Without it the deprecated random split "
+        "is used and the result is not reportable.",
     )
     parser.add_argument(
         "--esm_model",

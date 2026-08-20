@@ -5,22 +5,22 @@ using a fine-tuned ESM2 3B-parameter model + Morgan fingerprints,
 with optional EGFR variant mutation testing.
 
 Example single prediction:
-    python predict_ic50.py \
-      --model_path /scratch/s6273475/results/best_model_epoch35.pt \
+    python src/inference/plm_prediction.py \
+      --model_path models/best_model.pt \
       --smiles "CCO" \
       --sequence "MKT..."
 
 Batch CSV prediction:
-    python predict_ic50.py \
-      --model_path /scratch/s6273475/results/best_model_epoch35.pt \
+    python src/inference/plm_prediction.py \
+      --model_path models/best_model.pt \
       --input_csv data/input_pairs.csv \
       --output_csv data/predictions.csv
 
 EGFR mutation testing:
-    python predict_ic50.py \
-      --model_path /scratch/s6273475/results/best_model_epoch35.pt \
+    python src/inference/plm_prediction.py \
+      --model_path models/best_model.pt \
       --mutation_test \
-      --data_excel /home4/s6273475/ml/master_project/data/EGFR_IC50_all_assays.xlsx
+      --data_excel data/EGFR_IC50_all_assays.xlsx
 """
 
 import os

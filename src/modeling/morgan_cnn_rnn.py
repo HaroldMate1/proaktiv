@@ -34,7 +34,7 @@ if torch.cuda.is_available():
 # -------------------------------
 # Data Loading and Preprocessing
 # -------------------------------
-file_path = "/home4/s6273475/ml/EGFR_IC50_protein_based.xlsx"
+file_path = "data/EGFR_IC50_protein_based.xlsx"
 data = pd.read_excel(file_path, engine="openpyxl")
 
 # Rename columns to the expected names by DeepPurpose.
@@ -110,7 +110,7 @@ config = {
     "batch_size": 128,
     "use_cuda": True,
     # New key for result folder
-    "result_folder": "/home4/s6273475/ml/master_project/morgan_cnn_rnn",
+    "result_folder": "models/morgan_cnn_rnn",
 }
 
 # -------------------------------
