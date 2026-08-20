@@ -105,14 +105,14 @@ def main() -> int:
         )
 
         rf = RandomForestRegressor(
-            n_estimators=300, min_samples_leaf=2, n_jobs=-1, random_state=SEED
+            n_estimators=200, min_samples_leaf=2, n_jobs=1, random_state=SEED
         )
         rf.fit(fps[tr], y[tr])
         preds["ligand_rf"] = rf.predict(fps[te])
 
         combo = np.hstack([fps, variant_onehot])
         rf2 = RandomForestRegressor(
-            n_estimators=300, min_samples_leaf=2, n_jobs=-1, random_state=SEED
+            n_estimators=200, min_samples_leaf=2, n_jobs=1, random_state=SEED
         )
         rf2.fit(combo[tr], y[tr])
         preds["ligand_variant_rf"] = rf2.predict(combo[te])
