@@ -9,6 +9,29 @@ what they inferred, and to give the point-by-point response letter (Phase 10 of
 [`REVISION_PLAN.md`](REVISION_PLAN.md)) a factual basis. Several findings are
 worse than the reviewers could have known from the manuscript alone.
 
+## Status
+
+| # | Finding | Reviewer | Status |
+|---|---|---|---|
+| 1 | ALK mutations truncated out of the encoder input | R2.2 | **Fixed** — kinase-domain windowing |
+| 2 | Random split leaks compounds, scaffolds and variants | R1, R2.1 | **Fixed** — hard splits frozen and audited |
+| 3 | No relation or unit filtering; censored values became exact labels | — | **Fixed** — declared eligibility rules |
+| 4 | Unresolved mutation label treated as a variant | — | **Fixed** — quarantined |
+| 5 | ALK/BRAF rare-mutation regexes never compiled | R2.2 | **Fixed** — per-protein patterns |
+| 6 | Biochemical and cell-based assays pooled | R2.3 | **Fixed** — stratified, not pooled |
+| 7 | Assay noise floor unmeasured | R2.3 | **Measured** — RMSE floor 0.78 pIC50 |
+| 8 | Figure 4 shows predictions only | R1 | **Open** — needs a held-out case study (Phase 6) |
+| 9 | Uncertainty claims unquantified; MC dropout left model in train mode | R1, R2.5 | **Fixed in code** — needs a run to produce numbers |
+| — | Two quantities both labelled `MSE` | R1 | **Fixed** — header renamed to RMSE |
+| — | README documented five files that do not exist | — | **Fixed** |
+| — | 40 hard-coded HPC paths across 13 files | — | **Fixed** — repo-relative |
+| — | Training scripts split internally | R1, R2.1 | **Fixed** — `--split_manifest` |
+
+Still outstanding and not yet started: the literature comparison table and fair
+baselines against prior tools (Phase 3), the ESM2 retrain on hard splits
+(Phases 4–5), the selectivity gate (Phase 6), figure rebuild (Phase 8) and the
+manuscript rewrite (Phase 9).
+
 ---
 
 ## 1. ALK variants were invisible to the ESM2 model
