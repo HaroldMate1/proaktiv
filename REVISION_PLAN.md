@@ -1,5 +1,33 @@
 # PROAKTIV: reviewer-driven project and manuscript revision plan
 
+## Target: new journal, not resubmission (decided 2026-08-20)
+
+The manuscript is **not** going back to the original venue. The reviewer reports
+are being used as a free technical audit to improve the work before submitting
+elsewhere. This changes several things:
+
+- **No point-by-point response letter is required.** Phase 10 is demoted from a
+  deliverable to an internal checklist: we use the comments to verify we have
+  addressed each weakness, but we do not write a rebuttal to anyone.
+- **No inherited editorial history.** New reviewers will not have seen Reviewer
+  1's reject recommendation. Nothing has to be argued down or conceded; the work
+  simply has to be right on first presentation.
+- **Framing is fully open.** Title, scope, and claims can be set to whatever the
+  evidence supports, rather than defended as revisions to what was submitted.
+  Narrowing to EGFR, or reframing as a curation-and-benchmarking contribution,
+  costs nothing now.
+- **Phase 3 gets more important, not less.** A fresh submission is judged on
+  positioning from scratch, and "novelty relative to existing kinase/DTA models"
+  was Reviewer 1's first objection. The literature comparison table is now a
+  primary deliverable rather than a rebuttal exhibit.
+- **The prior submission does not need explaining.** Leakage, truncation and
+  label defects are fixed in the pipeline and simply never appear in the new
+  manuscript. `AUDIT_FINDINGS.md` remains the internal record of why the
+  methodology is built the way it is.
+
+Everything below still applies as the engineering and validation programme; only
+the audience for the output has changed.
+
 ## Purpose
 Turn PROAKTIV from a promising proof of concept into a reproducible, mutation-aware kinase bioactivity study whose claims are no broader than its evidence. Address every point from Reviewers 1 and 2 through new validation, corrected analyses, transparent data curation, reproducible code, revised figures, and a point-by-point response.
 
@@ -265,17 +293,20 @@ Follow the evidence in this order:
 - Correct citation numbering and add omitted methodological references.
 - Use consistent pIC50 units and terminology.
 
-## Phase 10 — point-by-point response to reviewers
-Create a response matrix with one row per reviewer comment:
-- reviewer quotation;
-- response and whether we agree;
-- analysis/code/data change;
-- numerical evidence;
-- manuscript section, page and line numbers;
-- figure/table/supplement reference;
-- repository path/commit reference.
+## Phase 10 — internal coverage checklist (no longer a response letter)
+Since the manuscript is going to a new venue, no rebuttal is written. The
+reviewer comments instead serve as an audit checklist: for each one, record
+whether the underlying weakness is resolved in the new manuscript, with the
+numerical evidence and repository reference that shows it.
 
-The response will acknowledge valid limitations directly. Where the evidence does not support the former claim, the claim will be withdrawn rather than argued into submission.
+Rows: reviewer quotation; is the weakness resolved; analysis/code/data change;
+numerical evidence; manuscript section; figure/table reference; repository
+path/commit.
+
+The value is defensive — anything still unresolved is a weakness the next set of
+reviewers will find too, so it must either be fixed or stated as an explicit
+limitation before submission. Where evidence does not support a claim, the claim
+is dropped rather than softened.
 
 ## Phase 11 — final verification and release
 1. Run unit/integration tests and CPU smoke test.
@@ -316,11 +347,38 @@ The response will acknowledge valid limitations directly. Where the evidence doe
 10. Draft reviewer response.
 11. Reproduce cleanly, open PR, and obtain final author approval.
 
-## Decisions requested before implementation
-1. Confirm whether the target is resubmission to the same venue or preparation for a different journal.
-2. Confirm access to the original GPU/HPC environment and any trained checkpoints/logs not in GitHub.
-3. Confirm whether a co-author can independently annotate a subset of mutation records.
-4. Confirm whether you prefer the strongest full revision above or a narrower EGFR-first manuscript if ALK/BRAF validation proves too weak.
+## Decisions
+1. ~~Resubmission or different journal?~~ **Resolved 2026-08-20:** different
+   journal. See "Target" at the top of this document.
+2. ~~GPU/HPC access and checkpoints?~~ **Resolved 2026-08-20:** HPC and trained
+   checkpoints are available, so the full multi-kinase route is open.
+3. **Open.** Can a co-author independently annotate a subset of mutation records
+   for the Phase 2B gold set? If not, we report single-annotator adjudication
+   and state the limitation.
+4. ~~Full revision or EGFR-first?~~ **Resolved 2026-08-20:** full multi-kinase,
+   contingent on ALK/BRAF surviving hard-split validation. If they do not, the
+   fallback to an EGFR-first manuscript is now cheap, because there is no
+   submitted version to stay consistent with.
+5. **Open.** Target format: Application Note / short report versus full research
+   paper. This sets how much of Phases 5-8 is required.
 
-## Current status
-The reviewer comments and this revision plan have been added as documentation. No data, model, figure, analysis or manuscript revision has begun.
+## Current status (2026-08-20)
+
+Work is on branch `revision/reviewer-validation`; `master` is untouched.
+See [`AUDIT_FINDINGS.md`](AUDIT_FINDINGS.md) for the verified defect list and
+its status table.
+
+**Done:** repository audit; kinase-domain windowing that fixes the ALK
+truncation; declared eligibility rules with a full exclusion log; replicate
+aggregation and the measured assay noise floor; frozen scaffold /
+unseen-variant / combined / temporal split manifests with a passing leakage
+audit; RMSE-first metrics and an uncertainty evaluation module; reference
+baselines across all four split schemes; per-protein mutation regexes;
+removal of 40 hard-coded HPC paths; README corrected; 48 unit tests.
+
+**Next:** HPC submission scripts and the ESM2 retrain on frozen splits
+(Phases 4-5); measured-versus-predicted case study to replace Figure 4
+(Phase 6); literature comparison table and fair baselines (Phase 3).
+
+**Blocked on the retrain:** uncertainty numbers for the Figure 2C/3C claim,
+per-kinase ESM2 versus CNN-RNN comparison, figure rebuild, manuscript rewrite.
