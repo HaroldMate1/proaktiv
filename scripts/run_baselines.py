@@ -104,16 +104,22 @@ def main() -> int:
             variant_key[te].map(vm).fillna(y[tr].mean()).to_numpy()
         )
 
-        rf = RandomForestRegressor(
-            n_estimators=200, min_samples_leaf=2, n_jobs=1, random_state=SEED
+        # max_features="sqrt" is essential here: the sklearn regression default
+        # of 1.0 makes every split scan all 2048 fingerprint bits, which is
+        # ~45x more work per split for no gain on sparse binary features.
+        rf_kwargs = dict(
+            n_estimators=200,
+            min_samples_leaf=2,
+            max_features="sqrt",
+            n_jobs=1,
+            random_state=SEED,
         )
+        rf = RandomForestRegressor(**rf_kwargs)
         rf.fit(fps[tr], y[tr])
         preds["ligand_rf"] = rf.predict(fps[te])
 
         combo = np.hstack([fps, variant_onehot])
-        rf2 = RandomForestRegressor(
-            n_estimators=200, min_samples_leaf=2, n_jobs=1, random_state=SEED
-        )
+        rf2 = RandomForestRegressor(**rf_kwargs)
         rf2.fit(combo[tr], y[tr])
         preds["ligand_variant_rf"] = rf2.predict(combo[te])
 

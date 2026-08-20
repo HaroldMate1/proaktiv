@@ -1,0 +1,15 @@
+  random    global_mean        RMSE 1.345 [1.319, 1.372]  r=-0.0
+  random    kinase_mean        RMSE 1.327 [1.300, 1.352]  r=0.166
+  random    variant_mean       RMSE 1.296 [1.269, 1.322]  r=0.269
+  random    ligand_rf          RMSE 0.830 [0.807, 0.853]  r=0.794
+  random    ligand_variant_rf  RMSE 0.807 [0.785, 0.828]  r=0.809
+  scaffold  global_mean        RMSE 1.348 [1.321, 1.375]  r=nan
+  scaffold  kinase_mean        RMSE 1.328 [1.302, 1.352]  r=0.185
+  scaffold  variant_mean       RMSE 1.300 [1.274, 1.325]  r=0.265
+  scaffold  ligand_rf          RMSE 0.946 [0.922, 0.969]  r=0.724
+  scaffold  ligand_variant_rf  RMSE 0.928 [0.906, 0.951]  r=0.737
+  variant   global_mean        RMSE 1.208 [1.173, 1.246]  r=-0.0
+  variant   kinase_mean        RMSE 1.281 [1.244, 1.319]  r=0.068
+  variant   variant_mean       RMSE 1.208 [1.171, 1.248]  r=-0.0
+  variant   ligand_rf          RMSE 1.084 [1.040, 1.130]  r=0.513
+  variant   ligand_variant_rf  RMSE 1.017 [0.973, 1.056]  r=0.536

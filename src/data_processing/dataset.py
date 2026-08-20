@@ -465,9 +465,30 @@ mutations_dict = {
     "BRAF": [r"t589s", r"p731t", r"v600[ -_]?k601[ -]?delins", r"v600d"],
 }
 
-# Compile a regex pattern dynamically for all mutations (single RegEx pattern that combines all the patterns)
-mutation_patterns = r"(?:" + "|".join(mutations_dict["EGFR"]) + r")"
-compiled_mutation_pattern = re.compile(mutation_patterns, re.IGNORECASE)
+# Compile one pattern per protein. The previous version built a single pattern
+# from mutations_dict["EGFR"] only, so the ALK and BRAF entries defined above
+# were never matched and the rare-mutation curation path never ran for them.
+mutation_patterns_by_protein = {
+    protein: r"(?:" + "|".join(patterns) + r")"
+    for protein, patterns in mutations_dict.items()
+}
+compiled_mutation_patterns = {
+    protein: re.compile(pattern, re.IGNORECASE)
+    for protein, pattern in mutation_patterns_by_protein.items()
+}
+
+
+def get_mutation_pattern(protein_name):
+    """Rare-mutation pattern for one protein, or None if none is defined."""
+    return mutation_patterns_by_protein.get(protein_name)
+
+
+# Union of every protein's patterns, for call sites that have no protein context
+# on the row. Downstream lookups are keyed by gene, so matching broadly here is
+# safe and is what lets ALK and BRAF descriptions resolve at all.
+compiled_mutation_pattern_all = re.compile(
+    r"(?:" + "|".join(mutation_patterns_by_protein.values()) + r")", re.IGNORECASE
+)
 
 
 # Function to extract mutations from the assay description using the compiled pattern
@@ -477,8 +498,13 @@ def extract_mutations(description, pattern):
     # Check directly for wild type in the description and return immediately
     if re.search(r"\b(wild[-_\s]?type|wt)\b", description, re.IGNORECASE):
         return "Wild Type"
+    if not pattern:
+        return "Other Mutation"
     found = re.findall(pattern, description, flags=re.IGNORECASE)
-    return ", ".join(set(found)) if found else "Other Mutation"
+    # sorted() rather than bare set() so repeated runs produce identical labels;
+    # set iteration order varies with PYTHONHASHSEED and made curation
+    # non-reproducible across sessions.
+    return ", ".join(sorted(set(found))) if found else "Other Mutation"
 
 
 # RegEx dictionary for mutation transformation from assay description
@@ -571,7 +597,7 @@ def update_mutation(row):
         return row["assay_variant_mutation"]
 
     # Find mutation matches
-    matches = compiled_mutation_pattern.findall(description)
+    matches = compiled_mutation_pattern_all.findall(description)
     if not matches:
         return "Other Mutation"
 
@@ -895,7 +921,8 @@ if __name__ == "__main__":
                 other_mask, "assay_description"
             ].apply(
                 lambda desc: transform_mutations(
-                    extract_mutations(desc, mutation_patterns), protein_name
+                    extract_mutations(desc, get_mutation_pattern(protein_name)),
+                    protein_name,
                 )
             )
 
